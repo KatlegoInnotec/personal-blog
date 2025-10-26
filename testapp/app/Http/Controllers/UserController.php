@@ -15,13 +15,31 @@ class UserController extends Controller
             'loginpassword' => 'required'
         ]);
 
-        if(auth()->attempt(['name' => $incomingFields['username'], 
-            'password' => $incomingFields['loginpassword']])) {
+        $attempted = false;
 
-                $request->session()->regenerate();
+        // Try email login if the username looks like an email
+        if (filter_var($incomingFields['username'], FILTER_VALIDATE_EMAIL)) {
+            $attempted = auth()->attempt([
+                'email' => $incomingFields['username'],
+                'password' => $incomingFields['loginpassword']
+            ]);
         }
 
-        return redirect('/');
+        // If not attempted via email or it failed, try username (name) login
+        if (! $attempted) {
+            $attempted = auth()->attempt([
+                'name' => $incomingFields['username'],
+                'password' => $incomingFields['loginpassword']
+            ]);
+        }
+
+        if ($attempted) {
+            $request->session()->regenerate();
+            return redirect('/api/i/write-blog')->with('status', 'Login successful');
+        }
+
+        // On failure, redirect back with an error (could be shown server-side)
+        return redirect('/')->withErrors(['username' => 'Invalid credentials provided.']);
     }
 
     public function logout() {

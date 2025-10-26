@@ -23,6 +23,14 @@ Route::post('/logout', [UserController::class,'logout']);
 
 Route::post('/login', [UserController::class,'login']);
 
+// Show separate login page (guest only)
+Route::get('/login', function () {
+    return view('auth.login');
+})->middleware('guest');
+
+// Protected write blog page
+Route::get('/api/i/write-blog', [BlogController::class, 'showWriteBlog'])->middleware('auth');
+
 //Blog post related rounte 
 Route::post('/create-post',[BlogController::class, 'createPost']);
 Route::get('/edit-post/{post}',[BlogController::class, 'showEditBolg']);
