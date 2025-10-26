@@ -1,5 +1,5 @@
 <?php
-
+//Hello World trying to commit
 namespace App\Http\Controllers;
 
 use App\Models\Post;
@@ -52,4 +52,13 @@ class BlogController extends Controller
          Post::create($incomingFields);
          return redirect('/');
     }
+
+      // Show write blog page with the user's posts
+      public function showWriteBlog() {
+         $posts = [];
+         if (auth()->check()) {
+            $posts = auth()->user()->UserPosts()->latest()->get();
+         }
+         return view('write-blog', ['posts' => $posts]);
+      }
 }
